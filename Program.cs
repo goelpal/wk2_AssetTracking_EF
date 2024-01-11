@@ -33,7 +33,7 @@ void showMainMenu()
             showMainMenu();
             break;
         case "3":
-            //EditAsset();//Edit the Asset information
+            EditAsset();//Edit the Asset information
             break;
         case "4":
             DeleteAsset();//Delete the Asset
@@ -50,6 +50,13 @@ void showMainMenu()
             showMainMenu();
             break;
     }
+}
+
+//Edit an Asset in the database
+
+void EditAsset()
+{
+
 }
 
 //Add an Asset in the Database
@@ -235,7 +242,69 @@ void AddAsset()
 
 void DeleteAsset()
 {
+    List<Asset> AllAsset = Context.Assets.ToList();
+    if (AllAsset.Count > 0)
+    {
+        List<Asset> SortedAsset = AllAsset.OrderBy(x => x.OfficeId).ThenBy(x => x.PurchaseDate).ToList();
+        Console.WriteLine("-------------------------------------------------------------------------------------------------------------------------");
+        Console.WriteLine("ID".PadRight(5) + "TYPE".PadRight(15) + "BRAND".PadRight(15) + "MODEL".PadRight(15) +
+                          "OFFICE".PadRight(15) + "PURCHASE DATE".PadRight(15) + "PRICE IN USD".PadRight(15) +
+                          "CURRENCY".PadRight(10) + "LOCAL PRICE TODAY");
+        foreach (Asset item in SortedAsset)
+        {
+            Console.WriteLine(item.Id.ToString().PadRight(5) + FindAssetType(item.AssetTypeId).ToUpper().PadRight(15) +
+                                      item.Brand.ToUpper().PadRight(15) + item.Model.ToUpper().PadRight(15) +
+                                      FindOfficeName(item.OfficeId).ToUpper().PadRight(15) + item.PurchaseDate.ToString("MM-dd-yyyy").PadRight(15) +
+                                      item.PriceInUSD.ToString().PadRight(15) + FindCurrency(item.OfficeId).ToUpper().PadRight(10) +
+                                      FindLocalPrice(item.PriceInUSD, item.OfficeId));
+        }
+    
 
+        int Flag = 0; //Variable to carry validations on data entered by the user
+
+        Console.ForegroundColor = ConsoleColor.Green;
+        Console.Write("Enter the Asset ID you want to delete :");
+        string IdValue = Console.ReadLine();
+
+        //Validations on the input value
+        if (string.IsNullOrEmpty(IdValue))
+        {
+            Flag = 1;
+        }
+
+        bool ValidId = Int32.TryParse(IdValue, out int outId);
+        if (Flag == 0 && ValidId)
+        {
+            List<Asset> SelectedCar = Context.Assets.Where(x => x.Id == outId).ToList();
+            if (SelectedCar.Count > 0)
+            {
+                var asset = Context.Assets.FirstOrDefault(x => x.Id == outId);
+                Context.Assets.Remove(asset);
+                Context.SaveChanges();
+                Console.WriteLine("Record successfully deleted from the database.");
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Record with Id:" + outId + " doesnot exist.");
+                Console.ResetColor();
+            }
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("This is an invalid entry. Please try again.");
+            Console.ResetColor();
+        }
+      }
+      else
+      {
+          Console.ForegroundColor = ConsoleColor.Red;
+          Console.WriteLine("There is no Assets data in the table.");
+          Console.ResetColor();
+      }
+
+    showMainMenu();
 }
 
 //List Assets from the Database
@@ -318,7 +387,7 @@ void ShowAsset()
     else
     {
         Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("There is no data to display.");
+        Console.WriteLine("There is no Assets data to display.");
         Console.ResetColor();
     }
 }
