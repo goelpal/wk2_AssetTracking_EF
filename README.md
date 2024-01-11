@@ -9,6 +9,7 @@ on.
 4. All assets needs to be stored in database using Entity Framework Core. 
 
 ##**REQUIREMENTS**
+
 **A. Create a console app that have the following classes and objects:**
 1. Computers
 - MacBook
