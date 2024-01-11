@@ -56,7 +56,200 @@ void showMainMenu()
 
 void EditAsset()
 {
+    int Flag = 0; //Variable to carry validations on data entered by the user
 
+    Console.ForegroundColor = ConsoleColor.Green;
+    Console.Write("Enter the Asset ID you want to edit :");
+    Console.ResetColor();
+    string IdValue = Console.ReadLine();
+
+    //Validations on the input value
+    if (string.IsNullOrEmpty(IdValue))
+    {
+        Flag = 1;
+    }
+
+    bool ValidId = Int32.TryParse(IdValue, out int outId);
+    if (Flag == 0 && ValidId)
+    {
+        List<Asset> Record = Context.Assets.Where(x => x.Id == outId).ToList();
+
+        if (Record.Count > 0)
+        {
+            foreach (Asset item in Record)
+            {
+
+                Console.WriteLine("ID".PadRight(5) + "TYPE".PadRight(15) + "BRAND".PadRight(15) + "MODEL".PadRight(15) +
+                                  "OFFICE".PadRight(15) + "PURCHASE DATE".PadRight(15) + "PRICE IN USD".PadRight(15) +
+                                  "CURRENCY".PadRight(10) + "LOCAL PRICE TODAY");
+
+                Console.WriteLine(item.Id.ToString().PadRight(5) + FindAssetType(item.AssetTypeId).ToUpper().PadRight(15) +
+                                          item.Brand.ToUpper().PadRight(15) + item.Model.ToUpper().PadRight(15) +
+                                          FindOfficeName(item.OfficeId).ToUpper().PadRight(15) + item.PurchaseDate.ToString("MM-dd-yyyy").PadRight(15) +
+                                          item.PriceInUSD.ToString().PadRight(15) + FindCurrency(item.OfficeId).ToUpper().PadRight(10) +
+                                          FindLocalPrice(item.PriceInUSD, item.OfficeId));
+            }
+
+            //Enter new values to be edited in the Record
+            int flag = 0;
+            Console.WriteLine("Enter the new details of the Asset.");
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("New Asset Type (1 for Phone | 2 for Computer) : ");
+            Console.ResetColor();
+            string type = Console.ReadLine();
+            
+            if (string.IsNullOrEmpty(type))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("This is an invalid entry.");
+                Console.ResetColor();
+                flag = 1;
+            }
+            else if (!(type.ToLower().Trim() == "1" || type.ToLower().Trim() == "2"))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("This is an invalid entry.");
+                Console.ResetColor();
+                flag = 1;
+            }
+
+            //Entering Asset Brand info
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("New Brand : ");
+            Console.ResetColor();
+            string brand = Console.ReadLine();
+            
+            if (string.IsNullOrEmpty(brand))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("This is an invalid entry.");
+                Console.ResetColor();
+                flag = 1;
+            }
+
+            //Entering Asset Model info
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("New Model : ");
+            Console.ResetColor();
+            string model = Console.ReadLine();
+           
+            if (string.IsNullOrEmpty(model))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("This is an invalid entry.");
+                Console.ResetColor();
+                flag = 1;
+            }
+
+            //Entering Asset Office info
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("New Office (1 for Spain/2 for Sweden/3 for USA) : ");
+            Console.ResetColor();
+            string office = Console.ReadLine();
+            
+            if (string.IsNullOrEmpty(office))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("This is an invalid entry.");
+                Console.ResetColor();
+                flag = 1;
+            }
+            else if (!(office.ToLower().Trim() == "1" || office.ToLower().Trim() == "2" || office.ToLower().Trim() == "3"))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("This is an invalid entry.");
+                Console.ResetColor();
+                flag = 1;
+            }
+
+            //Entering Asset Price info
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("New Price (USD) : ");
+            Console.ResetColor();
+            string price = Console.ReadLine();
+           
+            if (string.IsNullOrEmpty(price))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("This is an invalid entry.");
+                Console.ResetColor();
+                flag = 1;
+            }
+
+            //Entering Asset Purchase Date info
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("New Purchase Date (mm/dd/yyyy): ");
+            Console.ResetColor();
+            string purchase_date = Console.ReadLine();
+            
+
+            if (string.IsNullOrEmpty(purchase_date))
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("This is an invalid entry.");
+                Console.ResetColor();
+                flag = 1;
+            }
+            else
+            {
+                bool isValidDate = DateTime.TryParse(purchase_date, out DateTime out_purchase_date);
+                if (!isValidDate)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("This is an invalid entry.");
+                    Console.ResetColor();
+                    flag = 1;
+                }
+                if (out_purchase_date > DateTime.Today)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("This is an invalid entry. Purchase Date cannot be a future date.");
+                    Console.ResetColor();
+                    flag = 1;
+                }
+
+                if (flag == 1)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("There is an invalid entry. Please try again.");
+                    Console.ResetColor();
+                }
+                else
+                {
+                    var AssetNew = Context.Assets.FirstOrDefault(x => x.Id == outId);
+                    AssetNew.Brand = brand;
+                    AssetNew.Model = model;
+                    AssetNew.PurchaseDate = out_purchase_date;
+                    AssetNew.PriceInUSD = Convert.ToDouble(price);
+                    AssetNew.AssetTypeId = Convert.ToInt32(type);
+                    AssetNew.OfficeId = Convert.ToInt32(office);
+
+                    Context.Assets.Update(AssetNew);
+                    Context.SaveChanges();
+
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.WriteLine("The Asset was successfully updated to the database.");
+                    Console.ResetColor();
+
+                }
+            }
+        }
+        else
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine("Record with Id:" + outId + " doesnot exist.");
+            Console.ResetColor();
+        }
+
+    }
+    else
+    {
+        Console.ForegroundColor = ConsoleColor.Red;
+        Console.WriteLine("This is an invalid entry. Please try again.");
+        Console.ResetColor();
+    }
+    showMainMenu();
 }
 
 //Add an Asset in the Database
@@ -258,12 +451,18 @@ void DeleteAsset()
                                       item.PriceInUSD.ToString().PadRight(15) + FindCurrency(item.OfficeId).ToUpper().PadRight(10) +
                                       FindLocalPrice(item.PriceInUSD, item.OfficeId));
         }
-    
+        int Count = SortedAsset.Count();
+        Console.WriteLine("-------------------------------------------------------------------------------------------------------------------------");
+        Console.WriteLine("Total Number of Rows -".ToUpper().PadLeft(120) + Count);
+        Console.WriteLine("-------------------------------------------------------------------------------------------------------------------------");
+
+
 
         int Flag = 0; //Variable to carry validations on data entered by the user
 
         Console.ForegroundColor = ConsoleColor.Green;
         Console.Write("Enter the Asset ID you want to delete :");
+        Console.ResetColor();
         string IdValue = Console.ReadLine();
 
         //Validations on the input value
@@ -281,7 +480,9 @@ void DeleteAsset()
                 var asset = Context.Assets.FirstOrDefault(x => x.Id == outId);
                 Context.Assets.Remove(asset);
                 Context.SaveChanges();
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("Record successfully deleted from the database.");
+                Console.ResetColor();
             }
             else
             {
@@ -383,6 +584,10 @@ void ShowAsset()
                                       FindLocalPrice(item.PriceInUSD, item.OfficeId));
             }
         }
+        int Count = SortedAsset.Count();
+        Console.WriteLine("-------------------------------------------------------------------------------------------------------------------------");
+        Console.WriteLine("Total Number of Rows -".ToUpper().PadLeft(120) + Count);
+        Console.WriteLine("-------------------------------------------------------------------------------------------------------------------------");
     }
     else
     {
