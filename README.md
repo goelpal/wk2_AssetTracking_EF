@@ -2,19 +2,19 @@
 # Asset Tracking with database and Entity Framework Core
 
 ##**INTRODUCTION**
-###This project is the start of an Asset Tracking database.
-###Asset Tracking is a way to keep track of the company assets, like Laptops, Stationary computers, phones and so
+1. This project is the start of an Asset Tracking database
+2. Asset Tracking is a way to keep track of the company assets, like Laptops, Stationary computers, phones and so
 on.
-###All assets have an end of life which for simplicity reasons is 3 years.
-###All assets needs to be stored in database using Entity Framework Core. 
+3. All assets have an end of life which for simplicity reasons is 3 years.
+4. All assets needs to be stored in database using Entity Framework Core. 
 
 ##**REQUIREMENTS**
 Create a console app that have the following classes and objects:
-Computers
+1. Computers
 - MacBook
 - Asus
 - Lenovo
-Phones
+2. Phones
 - Iphone
 - Samsung
 - Nokia
